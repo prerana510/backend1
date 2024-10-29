@@ -16,7 +16,7 @@ app.use(cors()); // Enable CORS for all routes
 app.use(express.json()); // To parse JSON request bodies
 
 // Use branch routes
-app.use('/branches', branchRoutes);
+app.use('/api/branches', branchRoutes);
 
 app.listen(PORT, () => {
     console.log(`Branch Service is running on http://localhost:${PORT}`);

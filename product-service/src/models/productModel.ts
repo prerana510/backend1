@@ -1,5 +1,9 @@
 import mongoose, { Document, Schema } from 'mongoose';
+<<<<<<< HEAD
 import Counter from './counter';   // Assuming a Counter model exists for managing counters
+=======
+import Counter from './Counter';   // Assuming a Counter model exists for managing counters
+>>>>>>> dbab1617037094653828be4d432305f676a4bfec
 
 interface IProduct extends Document {
   productShortId: string;
@@ -10,6 +14,10 @@ interface IProduct extends Document {
   price: number;
   productImage: string;
   inventoryShortId: string;  // Reference to inventory short ID
+<<<<<<< HEAD
+=======
+  branchShortId: string[];
+>>>>>>> dbab1617037094653828be4d432305f676a4bfec
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -48,6 +56,13 @@ const productSchema = new Schema<IProduct>(
       type: String,
       unique: true,
     },
+<<<<<<< HEAD
+=======
+    branchShortId: {
+      type: [String],
+      required: true,
+    },
+>>>>>>> dbab1617037094653828be4d432305f676a4bfec
   },
   { timestamps: true }
 );

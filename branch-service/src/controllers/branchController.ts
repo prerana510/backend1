@@ -30,7 +30,7 @@ export const getBranchById = async (req: Request, res: Response): Promise<void> 
 // Get a single branch by shortId
 export const getBranchByShortId = async (req: Request, res: Response): Promise<void> => {
     try {
-        const branch = await Branch.findOne({ shortId: req.params.shortId });
+        const branch = await Branch.findOne({ branchShortId: req.params.shortId });
         if (!branch) {
             res.status(404).json({ message: 'Branch not found' });
         } else {
@@ -73,10 +73,10 @@ export const updateBranchById = async (req: Request, res: Response): Promise<voi
 // Update a branch by shortId
 export const updateBranchByShortId = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { branchLocation, branchManager, branchMobileNumber, branchEmail } = req.body;
+        const { branchLocation, branchRegion, branchManager, branchMobileNumber, branchEmail } = req.body;
         const branch = await Branch.findOneAndUpdate(
-            { shortId: req.params.shortId },
-            { branchLocation, branchManager, branchMobileNumber, branchEmail, updatedAt: new Date() },
+            { branchShortId: req.params.shortId },
+            { branchLocation, branchRegion, branchManager, branchMobileNumber, branchEmail, updatedAt: new Date() },
             { new: true }
         );
         if (!branch) {
@@ -106,7 +106,11 @@ export const deleteBranchById = async (req: Request, res: Response): Promise<voi
 // Delete a branch by shortId
 export const deleteBranchByShortId = async (req: Request, res: Response): Promise<void> => {
     try {
+<<<<<<< HEAD
         const branch = await Branch.findOneAndDelete({ shortId: req.params.shortId });
+=======
+        const branch = await Branch.findOneAndDelete({ branchShortId: req.params.shortId });
+>>>>>>> dbab1617037094653828be4d432305f676a4bfec
         if (!branch) {
             res.status(404).json({ message: 'Branch not found' });
         } else {

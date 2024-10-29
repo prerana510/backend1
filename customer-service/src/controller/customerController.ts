@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import Customer, { ICustomer } from '../models/customer'; // Adjust the import according to your folder structure
+import Customer from '../models/customer'; // Adjust the import according to your folder structure
 import { getOrdersByCustomerShortId } from '../services/orderServiceClient'; // Adjust the import according to your folder structure
 
 // 1. Create a Customer
@@ -54,6 +54,7 @@ export const getCustomerById = async (req: Request, res: Response): Promise<void
         res.status(500).json({ message: 'Error fetching customer', error: error.message });
     }
 };
+
 
 // 4. Get All Customers
 export const getAllCustomers = async (req: Request, res: Response): Promise<void> => {

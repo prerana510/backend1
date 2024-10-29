@@ -6,7 +6,7 @@ interface IBranch extends Document {
   branchRegion: string;
   branchMobileNumber:number,
   branchEmail:string,
-  shortId: string;
+  branchShortId: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -30,7 +30,7 @@ const branchSchema = new Schema<IBranch>(
         required: true,
         unique: true,
     },
-    shortId: {
+    branchShortId: {
       type: String,
       unique: true,
     },
@@ -50,8 +50,8 @@ branchSchema.pre<IBranch>('save', async function (next) {
       { new: true, upsert: true }
     );
 
-    this.shortId = `${year}${shortName}${counter.value.toString().padStart(3, '0')}`;
-    console.log('Generated Custom ID for Branch:', this.shortId);
+    this.branchShortId = `${year}${shortName}${counter.value.toString().padStart(4, '0')}`;
+    console.log('Generated Custom ID for Branch:', this.branchShortId);
 
     next();
   } catch (error:any) {

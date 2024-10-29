@@ -5,7 +5,7 @@ interface IUser extends Document {
     password: string;
     email: string;
     role: 'branch_retailer' | 'business_retailer';
-    branchId?: string;
+    branchShortId: string;
 }
 
 const UserSchema: Schema = new Schema({
@@ -13,7 +13,7 @@ const UserSchema: Schema = new Schema({
     password: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     role: { type: String, enum: ['branch_retailer', 'business_retailer'], default: 'branch_retailer' },
-    branchId: { type: String, required: false }
+    branchShortId: { type: String, required: true }
 });
 
 export default mongoose.model<IUser>('User', UserSchema);
