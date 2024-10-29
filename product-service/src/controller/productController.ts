@@ -81,3 +81,17 @@ export const deleteProduct = async (req: Request, res: Response): Promise<void> 
     res.status(500).json({ message: 'Error deleting product', error });
   }
 };
+
+// Get a single branch by shortId
+export const getProductByShortId = async (req: Request, res: Response): Promise<void> => {
+  try {
+      const branch = await Product.findOne({ productShortId: req.params.shortId });
+      if (!branch) {
+          res.status(404).json({ message: 'Branch not found' });
+      } else {
+          res.json(branch);
+      }
+  } catch (error) {
+      res.status(500).json({ message: 'Error fetching branch by shortId', error });
+  }
+};

@@ -1,14 +1,9 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import Counter from './counter';
 
-<<<<<<< HEAD
-export interface ICustomer extends Document {
-    customerShortId: string;
-=======
 // Define the ICustomer interface
 interface ICustomer extends Document {
     customerShortId?: string; // Make this optional for pre-save logic
->>>>>>> dbab1617037094653828be4d432305f676a4bfec
     customerName: string;
     customerEmail: string;
     customerPhone: string;

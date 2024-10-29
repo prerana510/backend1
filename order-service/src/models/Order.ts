@@ -10,11 +10,6 @@ export interface IOrder extends Document {
   totalPrice: number;
   orderDate: Date;
   transactionStatus: 'Pending' | 'Completed' | 'Cancelled';
-<<<<<<< HEAD
-  fromDate: Date;
-  toDate: Date;
-=======
->>>>>>> dbab1617037094653828be4d432305f676a4bfec
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -55,15 +50,6 @@ const orderSchema = new Schema<IOrder>(
       enum: ['Pending', 'Completed', 'Cancelled'],
       required: true,
     },
-<<<<<<< HEAD
-    fromDate: {
-      type: Date,
-    },
-    toDate: {
-      type: Date,
-    },
-=======
->>>>>>> dbab1617037094653828be4d432305f676a4bfec
   },
   { timestamps: true }
 );
