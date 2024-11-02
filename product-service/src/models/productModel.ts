@@ -3,16 +3,15 @@ import Counter from './counter';   // Assuming a Counter model exists for managi
 
 interface IProduct extends Document {
   productShortId: string;
+  brandName:string;
   productName: string;
   productQuantity: number;
   description: string;
   category: string;
   price: number;
   productImage: string;
-  inventoryShortId: string;  // Reference to inventory short ID
+  inventoryShortId: string;
   branchShortId: string[];
-  createdAt?: Date;
-  updatedAt?: Date;
 }
 
 const productSchema = new Schema<IProduct>(
@@ -20,6 +19,10 @@ const productSchema = new Schema<IProduct>(
     productName: {
       type: String,
       required: true,
+    },
+    brandName:{
+      type:String,
+      required:true,
     },
     description: {
       type: String,

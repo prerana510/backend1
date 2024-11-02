@@ -1,57 +1,88 @@
+// src/controllers/userController.ts
 import { Request, Response } from 'express';
-import User from '../models/userModel';
+import User, { IUser } from '../models/userModel';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 // Register a new user
-export const register = async (req: Request, res: Response): Promise<void> => {
-    const { username, password, email } = req.body;
+export const register = async (req: Request, res: Response) => {
+    const { username, password, email, role, branchShortId } = req.body;
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ username });
+    // Validate the username
+    const usernameRegex = /^[A-Za-z][A-Za-z0-9_-]*$/; // Starts with a letter, then letters/numbers/underscores/hyphens
+    if (!usernameRegex.test(username)) {
+        return res.status(400).json({ message: 'Username must start with a letter and can contain letters, numbers, underscores, or hyphens.' });
+    }
+
+     // Validate the password
+    if (password.length < 8) {
+        return res.status(400).json({ message: 'Password must be at least 8 characters long.' });
+    }
+
+    // Validate the role
+    const validRoles = ['branch_retailer', 'business_retailer', 'admin'];
+    if (!validRoles.includes(role)) {
+        return res.status(400).json({ message: `Role must be one of: ${validRoles.join(', ')}` });
+    }
+
+
+    // Check if the user already exists
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
-        res.status(400).json({ message: 'User already exists' });
+        return res.status(400).json({ message: 'User already exists' });
     }
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create and save new user
-    const user = new User({ username, password: hashedPassword, email });
-    await user.save();
+    // Create the new user
+    const newUser: IUser = new User({
+        username,
+        password: hashedPassword,
+        email,
+        role,
+        branchShortId
+    });
 
-    res.status(201).json({ message: 'User registered successfully' });
+    try {
+        await newUser.save();
+        res.status(201).json({ message: 'User registered successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error registering user', error });
+    }
 };
 
-// User login
+// Login user
 export const login = async (req: Request, res: Response) => {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
-    // Find user by username
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ email });
     if (!user) {
-        res.status(404).json({ message: 'User not found' });
+        return res.status(404).json({ message: 'User not found' });
     }
 
-    // Compare the password with the hashed password
-    else{
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-        res.status(401).json({ message: 'Invalid credentials' });
+        return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Generate JWT token
-    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET || '', { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id, role: user.role, branchShortId:user.branchShortId }, process.env.JWT_SECRET || '', { expiresIn: '1h' });
     
-    res.json({ token });
-}
+    res.json({ token,branchShortId: user.branchShortId });
 };
 
-// Get user by ID
-export const getUserById = async (req: Request, res: Response): Promise<void> => {
-    const user = await User.findById(req.params.id);
-    if (!user) {
-        res.status(404).json({ message: 'User not found' });
+// Get branch-specific data
+export const getBranchData = async (req: Request, res: Response) => {
+    if (req.user?.role === 'business_retailer') {
+        // Fetch data for all branches
+        // Assuming you have a Branch model to fetch branches
+        // const branches = await Branch.find();
+        return res.json({ message: 'Data for all branches' }); // Replace with actual branches data
+    } else if (req.user?.role === 'branch_retailer') {
+        // Fetch data for specific branch using req.user.branchShortId
+        // const branchData = await Branch.findOne({ shortId: req.user.branchShortId });
+        return res.json({ message: `Data for branch ${req.user.branchShortId}` }); // Replace with actual branch data
     }
-    res.json(user);
+    
+    res.status(403).json({ message: 'Forbidden' });
 };

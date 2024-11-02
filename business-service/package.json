@@ -1,5 +1,5 @@
 {
-  "name": "user-service",
+  "name": "business-service",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -12,27 +12,23 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "axios": "^1.7.7",
-    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
-    "express-validator": "^7.2.0",
-    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.7.3"
   },
   "devDependencies": {
     "@babel/cli": "^7.25.9",
     "@babel/core": "^7.26.0",
+    "@babel/node": "^7.26.0",
     "@babel/preset-env": "^7.26.0",
     "@babel/preset-react": "^7.25.9",
     "@babel/preset-typescript": "^7.26.0",
-    "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
-    "@types/express-validator": "^3.0.2",
-    "@types/jsonwebtoken": "^9.0.7",
-    "@types/node": "^22.8.1",
+    "@types/mongoose": "^5.11.97",
+    "@types/node": "^22.8.4",
+    "ts-node": "^10.9.2",
     "typescript": "^5.6.3"
   },
   "babel": {
