@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import Customer from '../models/customer'; // Adjust the import according to your folder structure
 import { getOrdersByCustomerShortId } from '../services/orderServiceClient'; // Adjust the import according to your folder structure
+import axios from 'axios';
 
 // 1. Create a Customer
 export const createCustomer = async (req: Request, res: Response): Promise<void> => {
@@ -119,3 +120,54 @@ export const getCustomerOrders = async (req: Request, res: Response): Promise<vo
     }
 };
 
+export const checkCustomerByEmail = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const customerEmail = req.query.customerEmail as string;
+        const customer = await Customer.findOne({ customerEmail: customerEmail });
+
+        if (customer) {
+            res.status(200).json(customer);
+        } else {
+            res.status(404).json({ message: 'Customer not found' });
+        }
+    } catch (error) {
+        console.error("Error checking customer:", error);
+        res.status(500).json({ message: 'Error checking customer', error });
+    }
+};
+
+export const addCustomerByEmail = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { customerEmail } = req.query;
+        const { customerShortId, customerName, customerPhone, branchShortId} = req.body;
+
+        // Check if email is provided
+        if (!customerEmail) {
+            res.status(400).json({ message: 'Email is required' });
+            return;
+        }
+
+        if (!customerName || !customerPhone || !branchShortId) {
+            res.status(400).json({ message: 'Name, Phone and Branch Short Id are required' });
+            return;
+        }
+
+        // Create a new customer object
+        const newCustomer = new Customer({
+        customerEmail: customerEmail as string,
+        customerName,
+        customerPhone,
+        branchShortId,
+            // Include other required fields for customer creation, such as name, address, etc.
+        });
+
+        // Save the customer to the database
+        await newCustomer.save();
+
+        // Respond with the newly created customer data
+        res.status(201).json(newCustomer);
+    } catch (error: any) {
+        console.error("Error adding customer:", error);
+        res.status(500).json({ message: 'Error adding customer', error: error.message });
+    }
+};

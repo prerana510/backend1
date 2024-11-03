@@ -2,26 +2,45 @@
 import { Request, Response } from 'express';
 import Order from '../models/Order';
 import { getCustomerByShortId } from '../service/customerServiceClient'; // Import the updated customer service client
+import axios from 'axios';
 
 // Create an order
 export const createOrder = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { customerShortId, ...orderDetails } = req.body;
+        const { customerEmail, ...orderDetails } = req.body;
 
         // Fetch customer details using customerShortId
-        const customer = await getCustomerByShortId(customerShortId);
-        if (!customer) {
-            res.status(404).json({ message: 'Customer not found' });
-            return;
-        }
+        const customerResponse = await axios.get(`http://localhost:5005/api/customers/checkCustomer?customerEmail=${customerEmail}`);
+
+        if (customerResponse.status === 200 && customerResponse.data) {
+          const customer = customerResponse.data;
+
+          const newOrder = new Order ({
+            ...orderDetails,
+            customerShortId: customer.customerShortId,
+            branchShortId: customer.branchShortId
+          });
+
+          await newOrder.save();
+          res.status(201).json(newOrder);
+          }
+          else {
+            res.redirect(307, `http://localhost:5005/api/customers/addCustomer?customerEmail=${customerEmail}`);
+          }
+            // res.redirect(307, `http://localhost:5004/api/orders/addCustomer/customerShortId/${customerShortId}`);
+            // //res.status(404).json({ message: 'Customer not found' });
+            // return;
+    }
 
         // Proceed to create order
-        const newOrder = new Order({ ...orderDetails, customerId: customer.customerShortId, branchShortId: customer.branchShortId }); // Set customerId from fetched customer
-        await newOrder.save();
-        res.status(201).json(newOrder);
-    } catch (error) {
+     catch (error:any) {
+      const { customerEmail, ...orderDetails } = req.body;
         console.error("Order creation error:", error);
-        res.status(500).json({ message: 'Error creating order', error });
+        if(error.response && error.response.status === 404) {
+          res.redirect(307, `http://localhost:5005/api/customers/addCustomer?customerEmail=${customerEmail}`);
+        } else {
+          res.status(500).json({ message: 'Error creating order', error});
+        }
     }
 };
 
@@ -56,7 +75,7 @@ export const getOrderById = async (req: Request, res: Response): Promise<void> =
 export const getOrdersByCustomerShortId = async (req: Request, res: Response): Promise<void> => {
     try {
         const { customerShortId } = req.params;
-        const orders = await Order.find({ customerId: customerShortId });  // assuming customerId field holds shortId
+        const orders = await Order.find({ customerShortId: customerShortId });  // assuming customerId field holds shortId
         res.json(orders);
     } catch (error) {
         console.error("Error fetching orders by customerShortId:", error);
@@ -151,4 +170,43 @@ export const deleteOrderByShortId = async (req: Request, res: Response): Promise
         console.error("Error deleting order by shortId:", error);
         res.status(500).json({ message: 'Error deleting order', error });
     }
+};
+
+export const addCustomerAndCreateOrder = async (req: Request, res: Response): Promise<void> => {
+  try {
+      const { customerShortId } = req.params;
+      const { orderDetails, ...newCustomerData } = req.body;
+
+      if (!newCustomerData) {
+          res.status(400).json({ message: 'newCustomerData is required to create a new customer.' });
+          return;
+      }
+
+      // Call Customer Service to create a new customer
+      try {
+          const customerResponse = await axios.post(`http://localhost:5005/api/customers/`, {
+              customerShortId: customerShortId,
+              ...newCustomerData
+          });
+          const customer = customerResponse.data;
+
+          console.log("New customer created:", customer);
+
+          // After creating the customer, proceed to create the order
+          const newOrder = new Order({
+              ...orderDetails,
+              customerShortId: customer.customerShortId,
+              branchShortId: customer.branchShortId,
+          });
+          await newOrder.save();
+
+          res.status(201).json(newOrder);
+      } catch (error) {
+          console.error("Customer creation error:", error);
+          res.status(500).json({ message: 'Error creating customer', error });
+      }
+  } catch (error) {
+      console.error("Error in addCustomerAndCreateOrder:", error);
+      res.status(500).json({ message: 'Error processing request', error });
+  }
 };
